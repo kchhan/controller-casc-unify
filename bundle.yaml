@@ -1,0 +1,10 @@
+apiVersion: "2"
+id: "controller-0"
+description: "Controller bundle for easy setup with Unify items"
+version: "1"
+jcasc:
+  - "jenkins.yaml"
+plugins:
+  - "plugins.yaml"
+items:
+  - "items.yaml"
