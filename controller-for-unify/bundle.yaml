@@ -1,5 +1,5 @@
 apiVersion: "2"
-id: "controller-0"
+id: "controller-for-unify"
 description: "Controller bundle for easy setup with Unify items"
 version: "1"
 jcasc:
