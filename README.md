@@ -11,36 +11,35 @@ import com.cloudbees.opscenter.server.casc.config.remotes.SCMBundleRetriever
 import jenkins.plugins.git.GitSCMSource
 import jenkins.plugins.git.traits.BranchDiscoveryTrait
 
+// Define configurations
+def sourceName = "cloudbees-casc-unify"
+def repoUrl = "https://github.com/kchhan/controller-casc-unify.git"
+def credentialsId = "my-git-creds"
+
 // Get the current remote bundles singleton
 def remoteBundlesStore = RemoteBundles.get()
 def bundles = remoteBundlesStore.getBundles()
 
-// 1. Define your Git details
-def repoUrl = "https://github.com/kchhan/controller-casc-unify.git"
-
-// (optional) Configure a credential to be used
-// def credentialsId = "my-git-creds"
-
-// 2. Create the Generic Git SCMSource
+// Create the Generic Git SCMSource
 def gitSource = new GitSCMSource(repoUrl)
 
+// (optional) Configure credentials for git repo
 // gitSource.setCredentialsId(credentialsId)
 
-// 3. Add SCM Behaviors (Traits)
+// Add SCM Behaviors (Traits)
 // Fetch the default traits, add branch discovery, and apply them back to the source.
 def traits = gitSource.getTraits()
 traits.add(new BranchDiscoveryTrait())
 gitSource.setTraits(traits)
 
-// 4. Instantiate the SCMBundleRetriever 
+// Instantiate the SCMBundleRetriever 
 // (Using the single-argument constructor identified earlier)
 def retriever = new SCMBundleRetriever(gitSource)
 
-// 5. Create the Configuration Object
-def sourceName = "cloudbees-casc-unify"
+// Create the Configuration Object
 def newBundleConfig = new RemoteBundleConfiguration(sourceName, retriever)
 
-// 6. Add to the active list and persist to disk
+// Add to the active list and persist to disk
 if (bundles.any { it.name == sourceName }) {
     println "Bundle source '${sourceName}' already exists. Skipping."
 } else {
@@ -48,6 +47,6 @@ if (bundles.any { it.name == sourceName }) {
     
     // Persist the change
     remoteBundlesStore.saveAndSync()
-    println "Successfully added and saved Git CasC source with branch discovery: ${sourceName}"
+    println "Successfully added and saved Git CasC source: ${sourceName}"
 }
 ```
