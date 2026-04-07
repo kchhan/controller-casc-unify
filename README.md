@@ -1,8 +1,12 @@
 # controller-casc-unify
 
-For learning CloudBees Unify. 
+For learning CloudBees Unify. These scripts are intended to be used in a CloudBees CI demo environment that is running in Kubernetes or Kind cluster.
 
-1./ Use this script in an Operations Center to quickly set up a CasC source. Then it should be easy to create a controller with the needed jobs.
+## Scripts and Instructions
+
+### Setting up a Continuous Integration configuration
+
+1. Use this script in an Operations Center to quickly set up a CasC source. Then it should be easy to create a controller with the needed jobs.
 
 ```
 import com.cloudbees.opscenter.server.casc.config.remotes.RemoteBundles
@@ -245,4 +249,51 @@ println " idName: ${instance.idName}"
 instance.provisionAndStartAction()
 println "Started the controller..."
 return
+```
+
+
+### Setting up a CloudBees Unify Insights configuration
+
+1. Use an Access Key from CloudBees Unify with this script to set up the integration.
+
+```
+import hudson.util.Secret
+import com.cloudbees.jenkins.plugins.insights.configuration.context.InsightConfigurationContext
+import com.cloudbees.jenkins.plugins.insights.configuration.InsightConfiguration
+import com.cloudbees.jenkins.plugins.insights.configuration.oc.InsightPropagation
+
+/*****************
+ * INPUTS        *
+ *****************/
+
+// Get accessKey from CloudBees Unify (Configurations -> Integrations -> Create Integration)
+def accessKey = Secret.fromString("XXXXXXXXXXXXXXXX")
+def fetchHistoricalData = true
+def platfromUrl = "https://api.cloudbees.io/"
+
+// (optional) Operations Center can propagate the configuration to connected controllers
+def propagate = true
+def include = "*"
+def exclude = ""
+
+/*****************
+ * CONFIGURE INSTANCE *
+ *****************/
+
+// Create new insights configuration
+def insightsContext = new InsightConfigurationContext(accessKey, fetchHistoricalData, platfromUrl)
+// Retrieve the global configuration instance for Platform Insights
+def insightsConfig = Jenkins.get().getDescriptorByType(InsightConfiguration.class)
+
+// Check if the instance is an Operations Center and if propagating is desired
+if (insightsConfig.isConfigPropagationSupported() && propagate == true) {
+    insightsConfig.setConfigPropagation(new InsightPropagation(include, exclude))
+}
+
+/*****************
+ * SAVE CONFIGURATION *
+ *****************/
+
+insightsConfig.fromOC(insightsContext)
+insightsConfig.save()
 ```
