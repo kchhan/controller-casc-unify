@@ -4,7 +4,7 @@ For learning CloudBees Unify. These scripts are intended to be used in a CloudBe
 
 ## Scripts and Instructions
 
-### Setting up a controller for Continuous Integration
+### Setting up a CloudBees CI environment for Continuous Integration
 
 These scripts are intended to be ran on the Operations Center.
 
@@ -84,7 +84,7 @@ import com.cloudbees.opscenter.server.properties.ConnectedMasterOwnerProperty
 /**
  * The controller name is mandatory
  */
-String controllerName = "controller-for-unify-3"
+String controllerName = "controller-for-unify"
 /**
  * Location of the controller
  * Leave empty to add to the top level
