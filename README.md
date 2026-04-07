@@ -4,7 +4,9 @@ For learning CloudBees Unify. These scripts are intended to be used in a CloudBe
 
 ## Scripts and Instructions
 
-### Setting up a Continuous Integration configuration
+### Setting up a controller for Continuous Integration
+
+These scripts are intended to be ran on the Operations Center.
 
 1. Use this script in an Operations Center to quickly set up a CasC source. Then it should be easy to create a controller with the needed jobs.
 
@@ -251,10 +253,48 @@ println "Started the controller..."
 return
 ```
 
+At the time of writing (April 2026), CloudBees Unify does not have an API to create an Integration. The Integration Configuration requires input through the UI. You can find the Integration page in CloudBees Unify at (Configurations -> Integrations -> Create Integration).
 
 ### Setting up a CloudBees Unify Insights configuration
 
-1. Use an Access Key from CloudBees Unify with this script to set up the integration.
+These scripts are intended to be ran on the Operations Center. An Operations Center Insights Integration should be created in CloudBees Unify.
+
+1. This script is used to ensure that the cloudbees-platform-insights plugin is installed before configuring the plugin. This script will perform a safe restart after installing the plugin.
+
+```
+/*****************
+ * INPUTS        *
+ *****************/
+
+def pluginName = "cloudbees-platform-insights" 
+
+/*****************
+ * INSTALL PLUGIN *
+ *****************/
+
+def instance = Jenkins.getInstance()
+def pm = instance.getPluginManager()
+def uc = instance.getUpdateCenter()
+
+if (!pm.getPlugin(pluginName)) {
+    println "Attempting to install ${pluginName}..."
+    def plugin = uc.getPlugin(pluginName)
+    if (plugin) {
+        // Deploy returns a Future; .get() waits for the download to finish
+        plugin.deploy().get() 
+        println "Installation of ${pluginName} complete. Triggering Safe Restart..."
+        
+        // Triggers a safe restart
+        instance.safeRestart()
+    } else {
+        println "Plugin ${pluginName} not found."
+    }
+} else {
+    println "Plugin ${pluginName} is already installed."
+}
+```
+
+2. Use an Access Key from CloudBees Unify with this script to set up the integration. CloudBees Unify (Configurations -> Integrations -> Create Integration)
 
 ```
 import hudson.util.Secret
@@ -296,4 +336,5 @@ if (insightsConfig.isConfigPropagationSupported() && propagate == true) {
 
 insightsConfig.fromOC(insightsContext)
 insightsConfig.save()
+println "Successfully configured an Insights configuration."
 ```
